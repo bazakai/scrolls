@@ -1,0 +1,12 @@
+{
+  "name": "scrolls",
+  "description": "Search every Claude Code session you've ever had — local, zero-LLM-cost semantic memory",
+  "owner": { "name": "Bazak AI", "url": "https://bazak.ai" },
+  "plugins": [
+    {
+      "name": "scrolls",
+      "source": "./",
+      "description": "Local hybrid search (embeddings + full-text) over all your Claude Code session transcripts"
+    }
+  ]
+}

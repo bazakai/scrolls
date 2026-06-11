@@ -1,0 +1,8 @@
+# dist/ is intentionally committed: Claude Code plugins are distributed as git
+# source with no build step, so the compiled output must ship in the repo.
+node_modules/
+*.log
+*.db
+*.db-shm
+*.db-wal
+.DS_Store

@@ -1,0 +1,17 @@
+{
+  "name": "scrolls",
+  "displayName": "Scrolls",
+  "version": "1.0.0",
+  "description": "Search every Claude Code session you've ever had — local hybrid semantic search (embeddings + full-text) over your transcripts, zero LLM cost",
+  "author": {
+    "name": "Bazak AI",
+    "email": "shlomo@bazak.ai",
+    "url": "https://bazak.ai"
+  },
+  "homepage": "https://github.com/bazakai/scrolls",
+  "repository": "https://github.com/bazakai/scrolls",
+  "license": "Apache-2.0",
+  "keywords": ["memory", "sessions", "search", "embeddings", "mcp", "recall", "history"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}
