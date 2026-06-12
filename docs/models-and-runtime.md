@@ -20,7 +20,7 @@ your text ──▶ @huggingface/transformers (transformers.js)
 
 - **Model:** [`Xenova/all-MiniLM-L6-v2`](https://huggingface.co/Xenova/all-MiniLM-L6-v2) - a 22M-parameter sentence-transformer, 384 dimensions, fp32 ONNX (~90MB on disk).
 - **Runtime:** `onnxruntime-node` ships prebuilt CPU binaries for macOS (arm64/x64) and Linux (x64/arm64). No node-gyp compile for ONNX; `better-sqlite3` is the one dependency that compiles natively at install.
-- **CPU only, on purpose.** The prebuilt ONNX binaries don't include CoreML/Metal/CUDA, and we don't want them to: this workload is not compute-bound. A full backfill of ~150,000 chunks embeds in minutes on an Apple Silicon CPU; steady-state indexing is a trickle (tens of chunks per minute). GPU acceleration would buy nothing except install fragility.
+- **CPU only, on purpose.** The prebuilt ONNX binaries don't include CoreML/Metal/CUDA, and we don't want them to: steady-state indexing is a trickle (tens of chunks per minute) that an accelerator wouldn't change user-visibly, and GPU paths would cost install fragility. The one compute-heavy moment is the initial backfill: measured at ~20 chunks/sec on Apple Silicon, so a very large history (150k chunks ≈ 8,500 sessions) takes about two hours of background CPU, once. Typical histories finish in minutes to tens of minutes.
 
 ## Is it MLX? Could it be?
 
