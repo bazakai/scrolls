@@ -1,0 +1,59 @@
+name: Bug report
+description: Something isn't working — indexing, search, daemon, install
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please skim [docs/troubleshooting.md](../../blob/main/docs/troubleshooting.md) first — the daemon/health checks there resolve most issues and produce exactly the diagnostics we need here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+      placeholder: |
+        1. Ran a search for "..."
+        2. Expected hits from last week's session
+        3. Got empty results / an error / ...
+    validations:
+      required: true
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Install method
+      options:
+        - Plugin (/plugin install scrolls@scrolls)
+        - Manual (git clone + claude mcp add + hooks)
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: scrolls version, Claude Code version (`claude --version`), Node version (`node --version`)
+      placeholder: scrolls 1.0.1, Claude Code 2.1.x, Node 22.x
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: OS and architecture
+      placeholder: macOS 15 arm64 / Ubuntu 24.04 x64
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Output of:
+        `curl -s http://127.0.0.1:48642/health` and `curl -s http://127.0.0.1:48642/stats`,
+        plus the last ~20 lines of `~/.claude/scrolls/daemon.log` if relevant.
+      render: shell
+  - type: checkboxes
+    id: secrets
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked the pasted logs/diagnostics contain no secrets or private transcript content
+          required: true

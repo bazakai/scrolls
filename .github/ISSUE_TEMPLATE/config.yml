@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/bazakai/scrolls/tree/main/docs
+    about: Why scrolls, how it works, runtime/daemon/privacy details, troubleshooting, uninstall

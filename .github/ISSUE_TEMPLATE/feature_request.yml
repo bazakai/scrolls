@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest an improvement or new capability
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: The use case matters more than the feature — describe what you're trying to do and where scrolls falls short.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: If you have a specific shape in mind (a flag, a tool parameter, a config option), sketch it.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you've tried, or other tools that do this and how.
+  - type: markdown
+    attributes:
+      value: |
+        Already on the roadmap (no need to file): embedding-model upgrade (v1.1), content-exclusion / redaction filters, vec0 metadata filter pushdown, recency-weighted relevance.
