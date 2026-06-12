@@ -1,6 +1,6 @@
 {
   "name": "scrolls",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Search every Claude Code session you've ever had — local hybrid semantic search over your transcripts, zero LLM cost",
   "license": "Apache-2.0",
   "repository": {
