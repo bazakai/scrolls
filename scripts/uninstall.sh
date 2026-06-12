@@ -13,12 +13,21 @@ STATE_DIR="${SCROLLS_DIR:-$HOME/.claude/scrolls}"
 PORT="${SCROLLS_PORT:-48642}"
 PID_FILE="$STATE_DIR/daemon.pid"
 
+# Stop ONLY this instance's daemon: pid file first, then the listener on OUR
+# port (verified to be a scrolls daemon). Never match by process name alone —
+# that would kill unrelated scrolls daemons (other state dirs/ports).
+stopped=""
 if [ -f "$PID_FILE" ] && kill "$(cat "$PID_FILE")" 2>/dev/null; then
   echo "daemon stopped (pid $(cat "$PID_FILE"))"
+  stopped=1
 else
-  pkill -f "scrolls.*dist/daemon.js" 2>/dev/null && echo "daemon stopped (by name)" \
-    || echo "daemon not running"
+  pid="$(lsof -ti "tcp:$PORT" -sTCP:LISTEN 2>/dev/null | head -1)"
+  if [ -n "$pid" ] && ps -o command= -p "$pid" 2>/dev/null | grep -q "dist/daemon.js"; then
+    kill "$pid" 2>/dev/null && echo "daemon stopped (pid $pid, via port $PORT)"
+    stopped=1
+  fi
 fi
+[ -z "$stopped" ] && echo "daemon not running"
 
 if [ "${1:-}" = "--purge-data" ]; then
   rm -rf "$STATE_DIR"
