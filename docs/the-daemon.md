@@ -17,7 +17,8 @@ It is the **only writer** to the index. It never reads anything outside your tra
 
 - **Start:** lazily, by the `SessionStart` hook (`ensure-daemon.sh`). The hook health-checks first and is a no-op when the daemon is already up - sub-second on every session start after the first.
 - **No boot persistence by design:** there's no launchd/systemd unit. After a reboot the daemon is simply started by your next Claude Code session, and its startup sweep closes the gap.
-- **Stop:** `kill $(cat ~/.claude/scrolls/daemon.pid)`. It stays down until the next session start. To stop it permanently, disable/uninstall the plugin (see [uninstall.md](uninstall.md)).
+- **Stop:** `kill $(cat ~/.claude/scrolls/daemon.pid)` (or `scripts/uninstall.sh`). It stays down until the next session start. To stop it permanently, disable/uninstall the plugin (see [uninstall.md](uninstall.md)).
+- **Uninstall awareness:** the daemon checks once a minute that its own install directory still exists; if you delete the plugin or the clone, it shuts itself down within a minute instead of running orphaned.
 - **Crash safety:** all writes are transactional (SQLite WAL); a killed daemon can't corrupt the index. Concurrent start attempts are serialized with a lock that self-heals if a previous attempt died mid-start.
 
 ## Surface area

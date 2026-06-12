@@ -1,6 +1,7 @@
 import { createServer } from "http";
-import { createWriteStream, writeFileSync, realpathSync } from "fs";
+import { createWriteStream, writeFileSync, realpathSync, existsSync, } from "fs";
 import { join, sep } from "path";
+import { fileURLToPath } from "url";
 import { openDb, initSchema, SESSION_MEMORY_DIR } from "./db.js";
 import { DAEMON_PORT, PROJECTS_DIR } from "./config.js";
 import { IndexQueue } from "./queue.js";
@@ -70,6 +71,17 @@ async function main() {
         // recovered here. Idempotent — unchanged files are skipped by offset/mtime.
         backfill({ db, options: { log } }).catch((err) => log(`startup backfill error: ${err}`));
     });
+    // Uninstall awareness: when the install directory is deleted (plugin
+    // uninstalled, checkout removed), shut down instead of running orphaned.
+    const selfPath = fileURLToPath(import.meta.url);
+    setInterval(() => {
+        if (!existsSync(selfPath)) {
+            log("install directory removed — shutting down (uninstall cleanup)");
+            server.close();
+            db.close();
+            process.exit(0);
+        }
+    }, 60_000).unref();
     process.on("SIGTERM", () => {
         log("shutting down (SIGTERM)");
         server.close();

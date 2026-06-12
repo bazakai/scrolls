@@ -57,6 +57,25 @@ if ! deps_ready; then
   fi
 fi
 
+# Prune superseded plugin versions: each carries its own node_modules + model
+# cache (~500MB). Only lower versions, and only after 2 days — sessions started
+# before an update may still run the previous version's MCP server.
+case "$PROJECT_DIR" in
+  "$HOME/.claude/plugins/cache/"*)
+    CURRENT_VERSION="$(basename "$PROJECT_DIR")"
+    for sibling in "$(dirname "$PROJECT_DIR")"/*/; do
+      sibling="${sibling%/}"
+      SIB_VERSION="$(basename "$sibling")"
+      [ "$SIB_VERSION" = "$CURRENT_VERSION" ] && continue
+      newest="$(printf '%s\n%s\n' "$SIB_VERSION" "$CURRENT_VERSION" | sort -V | tail -1)"
+      if [ "$newest" = "$CURRENT_VERSION" ] && [ -z "$(find "$sibling" -maxdepth 0 -mtime -2 2>/dev/null)" ]; then
+        echo "$(date -u +%FT%TZ) pruning superseded plugin version $SIB_VERSION" >>"$LOG_FILE"
+        rm -rf "$sibling"
+      fi
+    done
+    ;;
+esac
+
 if daemon_healthy; then
   exit 0
 fi
