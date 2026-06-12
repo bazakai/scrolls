@@ -1,17 +1,30 @@
 #!/usr/bin/env bash
-# Stops the scrolls daemon and (optionally) removes all local data.
+# Stops the scrolls daemon and (optionally) removes local data and plugin caches.
 # Usage:
-#   ./scripts/uninstall.sh               # stop daemon, keep index/logs
-#   ./scripts/uninstall.sh --purge-data  # stop daemon, delete ~/.claude/scrolls
+#   ./scripts/uninstall.sh                       # stop daemon, keep everything else
+#   ./scripts/uninstall.sh --purge-data          # also delete ~/.claude/scrolls (index, logs)
+#   ./scripts/uninstall.sh --purge-cache         # also delete ~/.claude/plugins/cache/scrolls
+#   ./scripts/uninstall.sh --purge-data --purge-cache   # full cleanup
 #
-# Run this BEFORE `claude plugin uninstall` so the script is still on disk.
-# (If you forgot: the daemon also detects its install dir is gone and exits
-# on its own within a minute; data removal is then just `rm -rf ~/.claude/scrolls`.)
+# Note: `claude plugin uninstall` only UNREGISTERS the plugin — it does not
+# delete the cached install tree (which holds node_modules and the embedding
+# model, ~500MB per version). --purge-cache is how that actually gets removed.
 set -uo pipefail
 
 STATE_DIR="${SCROLLS_DIR:-$HOME/.claude/scrolls}"
 PORT="${SCROLLS_PORT:-48642}"
 PID_FILE="$STATE_DIR/daemon.pid"
+PLUGIN_CACHE="$HOME/.claude/plugins/cache/scrolls"
+
+PURGE_DATA=""
+PURGE_CACHE=""
+for arg in "$@"; do
+  case "$arg" in
+    --purge-data) PURGE_DATA=1 ;;
+    --purge-cache) PURGE_CACHE=1 ;;
+    *) echo "unknown flag: $arg" >&2; exit 2 ;;
+  esac
+done
 
 # Stop ONLY this instance's daemon: pid file first, then the listener on OUR
 # port (verified to be a scrolls daemon). Never match by process name alone —
@@ -29,11 +42,18 @@ else
 fi
 [ -z "$stopped" ] && echo "daemon not running"
 
-if [ "${1:-}" = "--purge-data" ]; then
+if [ -n "$PURGE_DATA" ]; then
   rm -rf "$STATE_DIR"
   echo "removed $STATE_DIR (index, logs, pid/lock files)"
 else
   echo "kept $STATE_DIR — pass --purge-data to delete the index and logs"
+fi
+
+if [ -n "$PURGE_CACHE" ]; then
+  rm -rf "$PLUGIN_CACHE"
+  echo "removed $PLUGIN_CACHE (all cached plugin versions, node_modules, model cache)"
+elif [ -d "$PLUGIN_CACHE" ]; then
+  echo "kept $PLUGIN_CACHE ($(du -sh "$PLUGIN_CACHE" 2>/dev/null | cut -f1)) — Claude Code does NOT delete this on plugin uninstall; pass --purge-cache to remove it"
 fi
 
 cat <<'EOF'
@@ -42,7 +62,7 @@ To finish removal:
   claude plugin uninstall scrolls@scrolls
   claude plugin marketplace remove scrolls
 
-(Plugin removal deletes the install dir including node_modules and the
-embedding-model cache. Your transcripts in ~/.claude/projects/ are untouched —
-scrolls never modifies them.)
+(Your transcripts in ~/.claude/projects/ are untouched — scrolls never
+modifies them. Any daemon left behind also self-terminates within a minute
+of its install directory being deleted.)
 EOF

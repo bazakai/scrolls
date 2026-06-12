@@ -1,5 +1,8 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { openDb, initSchema, DB_PATH } from "./db.js";
@@ -33,7 +36,8 @@ async function main() {
     initSchema(init);
     init.close();
     const db = openDb(true);
-    const server = new Server({ name: "scrolls", version: "1.0.0" }, { capabilities: { tools: {} } });
+    const { version } = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8"));
+    const server = new Server({ name: "scrolls", version }, { capabilities: { tools: {} } });
     // The embedding model is NOT preloaded here: one MCP server is spawned per
     // Claude session and most sessions never search. It loads lazily on the
     // first search_sessions call instead.

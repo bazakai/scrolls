@@ -1,5 +1,8 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -40,8 +43,15 @@ async function main() {
   init.close();
   const db = openDb(true);
 
+  const { version } = JSON.parse(
+    readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"),
+      "utf8",
+    ),
+  ) as { version: string };
+
   const server = new Server(
-    { name: "scrolls", version: "1.0.0" },
+    { name: "scrolls", version },
     { capabilities: { tools: {} } },
   );
 

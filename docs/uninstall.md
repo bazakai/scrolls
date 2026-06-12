@@ -10,18 +10,19 @@ Cleanup is also built in, not just documented:
 ## Plugin install
 
 ```bash
-# 1. Stop the daemon and optionally delete the index/logs
-~/.claude/plugins/cache/scrolls/scrolls/*/scripts/uninstall.sh --purge-data
-# (omit --purge-data to keep ~/.claude/scrolls for a later reinstall)
+# 1. Stop the daemon and delete local data + cached install trees
+~/.claude/plugins/cache/scrolls/scrolls/*/scripts/uninstall.sh --purge-data --purge-cache
+# (omit --purge-data to keep the index for a later reinstall;
+#  omit --purge-cache to keep the cached install)
 
-# 2. Remove the plugin and marketplace
+# 2. Unregister the plugin and marketplace
 claude plugin uninstall scrolls@scrolls
 claude plugin marketplace remove scrolls
 ```
 
-Forgot step 1 and uninstalled first? Fine: the daemon exits by itself within a minute, and the only thing left to delete is the data dir: `rm -rf ~/.claude/scrolls`.
+**Why `--purge-cache` matters:** `claude plugin uninstall` only *unregisters* the plugin — verified empirically, it does **not** delete `~/.claude/plugins/cache/scrolls/`, which holds every cached version with its node_modules and embedding-model cache (~500MB per version). The script flag is what actually frees that disk.
 
-The embedding-model cache and node_modules live inside the plugin's cache directory and are removed with the plugin.
+Forgot step 1 and unregistered first? Fine: the daemon exits by itself within a minute of the cache being deleted, and cleanup is two `rm -rf`s: `~/.claude/scrolls` (data) and `~/.claude/plugins/cache/scrolls` (cache).
 
 ## Manual install
 
@@ -52,6 +53,6 @@ The daemon rebuilds an empty index on next session start; backfill again wheneve
 | Artifact | Path | Removed by |
 |----------|------|------------|
 | Index, logs, pid/lock | `~/.claude/scrolls/` | `uninstall.sh --purge-data` (or `rm -rf`) |
-| Plugin code + deps + model cache | `~/.claude/plugins/cache/scrolls/` | `claude plugin uninstall` + `marketplace remove` |
-| Hooks/MCP wiring (plugin install) | inside Claude Code's plugin registry | `claude plugin uninstall` |
+| Plugin code + deps + model cache | `~/.claude/plugins/cache/scrolls/` | `uninstall.sh --purge-cache` (NOT removed by `claude plugin uninstall`) |
+| Hooks/MCP wiring (plugin install) | Claude Code's plugin registry | `claude plugin uninstall` + `marketplace remove` |
 | Your transcripts | `~/.claude/projects/` | never touched by scrolls |
