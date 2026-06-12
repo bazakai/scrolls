@@ -1,8 +1,10 @@
 # scrolls
 
-**Search every Claude Code session you've ever had.** Real hybrid retrieval — neural embeddings fused with BM25 full-text — over your raw transcripts, at zero LLM cost. No summarization passes, no API bills, no cloud. Install the plugin and every session can search every past session.
+**Search every Claude Code session you've ever had.** Real hybrid retrieval — neural embeddings fused with BM25 full-text — over your raw transcripts. Local, free, and private: no API bills, no cloud, nothing leaves your machine. Install the plugin and every session can search every past session.
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen) ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
+
+*Why this and not claude-mem / episodic-memory / native memory — and why you might NOT want it: [docs/why-scrolls.md](docs/why-scrolls.md)*
 
 ```
 "where did we debug that SQLITE_BUSY error?"          → the exact session, three weeks ago
@@ -24,6 +26,20 @@ curl -X POST http://127.0.0.1:48642/backfill
 ```
 
 That's it. Ask Claude things like *"search my past sessions for the cookie-banner fix"* and it will call the `search_sessions` tool.
+
+## Requirements — what you actually need
+
+| | |
+|---|---|
+| OS / runtime | macOS or Linux, Node.js >= 20, `bash` + `curl` (hooks) |
+| GPU | **not needed** — embeddings run on CPU, and this workload is not compute-bound |
+| Python / Ollama / MLX / Docker | **not needed** — the model runs in-process via ONNX ([details](docs/models-and-runtime.md)) |
+| API keys / accounts | **none** — scrolls never calls an LLM or any service |
+| Network | one-time ~90MB model download from HuggingFace on first run; fully offline after |
+| Disk | ~500MB for dependencies + model, plus ~50-60MB of index per 1,000 sessions |
+| Build tools | `better-sqlite3` compiles natively on install (macOS: Xcode Command Line Tools) |
+
+The embedding model (`Xenova/all-MiniLM-L6-v2`, 384-dim) downloads automatically into the install's local cache on first use — no setup, no model registry, no separate inference server. Exactly what runs where: [docs/models-and-runtime.md](docs/models-and-runtime.md).
 
 ## How it works
 
@@ -127,12 +143,24 @@ Native memory keeps a small set of curated notes (CLAUDE.md, auto-memory) that C
 - **[claude-mem](https://github.com/thedotmack/claude-mem)** — a different philosophy: LLM-compresses your history into memory. Powerful, but spends tokens on every consolidation. scrolls deliberately does not.
 - **[graphify](https://github.com/safishamsi/graphify)** — a different axis: maps your *project* (code, docs, media) into a queryable knowledge graph. scrolls maps your *conversations*. They compose well.
 
+## Documentation
+
+| Doc | Answers |
+|-----|---------|
+| [why-scrolls.md](docs/why-scrolls.md) | the pitch, the honest anti-pitch, comparisons, "choose X if" |
+| [how-it-works.md](docs/how-it-works.md) | architecture, what gets captured, hybrid search + relevance floor explained |
+| [models-and-runtime.md](docs/models-and-runtime.md) | what downloads when, where it's cached, CPU vs GPU vs MLX, offline use, swapping models |
+| [the-daemon.md](docs/the-daemon.md) | what the background process does, lifecycle, port, resource usage, how to stop it |
+| [privacy-and-data.md](docs/privacy-and-data.md) | what's stored field-by-field, where it lives, what leaves your machine (nothing), secrets |
+| [troubleshooting.md](docs/troubleshooting.md) | not indexing, daemon issues, model download failures, index rebuild |
+| [uninstall.md](docs/uninstall.md) | complete removal, every path, per install method |
+
 ## Known constraints
 
 - **Embedding window** — MiniLM embeds ~256 tokens; chunks are up to 1,500 chars, so the tail of large chunks is reachable via full-text search but not semantic search. A drop-in model upgrade (same 384 dims) is the planned v1.1.
-- **Sidechains** — subagent transcripts are indexed and searchable; context windows stay within their own transcript file. Indexes built before v1.0 need a rebuild (delete the DB, re-run backfill) to get this scoping.
-- **Platform** — macOS/Linux (bash + curl hooks). Node.js >= 20.
-- **Storage** — roughly 50-60MB per 1,000 sessions, embeddings-dominated. No retention policy; delete `index.db*` and re-backfill to rebuild.
+- **No content-exclusion filters yet** — you can't mark a repo or pattern as "never index" (roadmap). See [privacy-and-data.md](docs/privacy-and-data.md).
+- **Claude Code only** — no Codex or other-harness support yet.
+- **Storage** — roughly 50-60MB per 1,000 sessions, no retention policy; delete `index.db*` and re-backfill to rebuild.
 
 ## License
 
