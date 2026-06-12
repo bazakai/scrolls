@@ -1,7 +1,7 @@
 {
   "name": "scrolls",
   "displayName": "Scrolls",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Search every Claude Code session you've ever had — local hybrid semantic search (embeddings + full-text) over your transcripts, zero LLM cost",
   "author": {
     "name": "Bazak AI",
