@@ -106,4 +106,3 @@ export function projectFromPath(transcriptPath) {
     const slash = rest.indexOf("/");
     return slash === -1 ? rest : rest.slice(0, slash);
 }
-//# sourceMappingURL=parser.js.map

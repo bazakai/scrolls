@@ -177,4 +177,3 @@ main().catch((err) => {
     process.stderr.write(`fatal: ${err}\n`);
     process.exit(1);
 });
-//# sourceMappingURL=daemon.js.map

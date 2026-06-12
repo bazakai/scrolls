@@ -140,4 +140,3 @@ export function indexFile({ db, path, }) {
     });
     return run;
 }
-//# sourceMappingURL=indexer.js.map

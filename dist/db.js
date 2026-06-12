@@ -71,4 +71,3 @@ export function initSchema(db) {
         db.exec("ALTER TABLE chunks ADD COLUMN source TEXT NOT NULL DEFAULT ''");
     }
 }
-//# sourceMappingURL=db.js.map

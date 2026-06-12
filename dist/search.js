@@ -215,4 +215,3 @@ export function getSessionWindow({ db, sessionId, uuid, timestamp, radius = 6, }
         text: r.text,
     }));
 }
-//# sourceMappingURL=search.js.map

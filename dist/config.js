@@ -15,4 +15,3 @@ export const EMBEDDING_DIMS = Number(env("SCROLLS_DIMS") ?? 384);
 export const RELEVANCE_FLOOR = Number(env("SCROLLS_RELEVANCE_FLOOR") ?? 1.15);
 export const CANDIDATE_LIMIT = Number(env("SCROLLS_CANDIDATE_LIMIT") ?? 40);
 export const RRF_K = Number(env("SCROLLS_RRF_K") ?? 60);
-//# sourceMappingURL=config.js.map

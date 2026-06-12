@@ -70,4 +70,3 @@ export async function backfill({ db, options, }) {
     log(`backfill complete: ${files.length} files, ${chunksAdded} chunks, ${errors} errors, ${durationMs}ms`);
     return { filesProcessed: files.length, chunksAdded, durationMs, errors };
 }
-//# sourceMappingURL=backfill.js.map

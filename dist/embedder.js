@@ -44,4 +44,3 @@ export async function embedOne(text) {
     const [vec] = await embedBatch([text]);
     return vec;
 }
-//# sourceMappingURL=embedder.js.map
